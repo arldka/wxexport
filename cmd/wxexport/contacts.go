@@ -55,16 +55,14 @@ func cmdContacts(ctx context.Context, g globalFlags, args []string) error {
 		if c.LastTimestamp > 0 {
 			last = time.Unix(c.LastTimestamp, 0).Format("2006-01-02")
 		}
-		fmt.Printf("%-25s %-22s %s  %s\n", c.DisplayName(), c.Username, last, truncateLine(c.Summary, 40))
+		fmt.Printf("%-25s %-22s %s  %s\n", truncateLine(c.DisplayName(), 25), truncateLine(c.Username, 22), last, truncateLine(c.Summary, 40))
 	}
 	fmt.Printf("\n%d contact(s)\n", len(cs))
 	return nil
 }
 
+// truncateLine makes untrusted text terminal-safe (no control/escape characters) and shortens it
+// to n runes without splitting multi-byte characters.
 func truncateLine(s string, n int) string {
-	s = strings.ReplaceAll(s, "\n", " ")
-	if len(s) <= n {
-		return s
-	}
-	return s[:n] + "..."
+	return wcdb.Truncate(wcdb.SafeText(s), n)
 }

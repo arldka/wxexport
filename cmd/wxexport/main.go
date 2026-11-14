@@ -17,6 +17,8 @@ import (
 
 const usage = `wxexport - export WeChat 4.x (flatpak) 1:1 chat and call history
 
+Proof of concept, use at your own risk. Use only on your own account and data.
+
 Usage:
   wxexport doctor
   wxexport key capture|set|check|forget

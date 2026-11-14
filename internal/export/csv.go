@@ -3,7 +3,33 @@ package export
 import (
 	"encoding/csv"
 	"os"
+	"strconv"
 )
+
+// csvSafe neutralises spreadsheet formula injection (CWE-1236): message text, titles and URLs
+// come from other people, and a cell starting with = + - @ (or tab/CR) is executed as a formula
+// by Excel/LibreOffice. Such cells get a leading apostrophe. Plain numbers are left alone.
+func csvSafe(s string) string {
+	if s == "" {
+		return s
+	}
+	switch s[0] {
+	case '=', '+', '-', '@', '\t', '\r':
+		if _, err := strconv.ParseFloat(s, 64); err == nil {
+			return s
+		}
+		return "'" + s
+	}
+	return s
+}
+
+func csvSafeRow(vals []string) []string {
+	out := make([]string, len(vals))
+	for i, v := range vals {
+		out[i] = csvSafe(v)
+	}
+	return out
+}
 
 // utf8BOM is U+FEFF's UTF-8 encoding, built from byte values (not a string escape) because the
 // Go toolchain rejects a literal BOM character embedded anywhere in source text.
@@ -28,7 +54,7 @@ func WriteMessagesCSV(dst string, force, includeRaw, excelBOM bool, rows []Row) 
 			return err
 		}
 		for _, r := range rows {
-			if err := w.Write(r.Values(includeRaw)); err != nil {
+			if err := w.Write(csvSafeRow(r.Values(includeRaw))); err != nil {
 				return err
 			}
 		}
@@ -53,7 +79,7 @@ func WriteCallsCSV(dst string, force, excelBOM bool, rows []Row) error {
 			if !r.IsCall() {
 				continue
 			}
-			if err := w.Write(r.CallValues()); err != nil {
+			if err := w.Write(csvSafeRow(r.CallValues())); err != nil {
 				return err
 			}
 		}

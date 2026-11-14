@@ -93,7 +93,7 @@ func (m Model) viewContacts() string {
 	}
 	list := m.visibleContacts()
 	for i, c := range list {
-		line := fmt.Sprintf("%-25s %-22s %s", c.DisplayName(), c.Username, lastActivity(c))
+		line := fmt.Sprintf("%-25s %-22s %s", wcdb.SafeText(c.DisplayName()), wcdb.SafeText(c.Username), lastActivity(c))
 		if i == m.cursor && !m.filtering {
 			line = selectedStyle.Render("> " + line)
 		} else {

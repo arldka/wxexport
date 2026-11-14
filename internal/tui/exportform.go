@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
+
+	"github.com/arldka/wxexport/internal/wcdb"
 )
 
 func (m Model) updateExport(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
@@ -71,7 +73,7 @@ func (m Model) updateExport(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 
 func (m Model) viewExport() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "%s %s\n\n", titleStyle.Render("Export"), subtleStyle.Render(m.activeContact.DisplayName()))
+	fmt.Fprintf(&b, "%s %s\n\n", titleStyle.Render("Export"), subtleStyle.Render(wcdb.SafeText(m.activeContact.DisplayName())))
 	fmt.Fprintf(&b, "%s Output dir: %s\n", focusMark(m.focus == focusOutDir), m.outDirInput.View())
 	fmt.Fprintf(&b, "%s %s JSON\n", focusMark(m.focus == focusJSON), checkbox(m.exportJSON))
 	fmt.Fprintf(&b, "%s %s CSV\n", focusMark(m.focus == focusCSV), checkbox(m.exportCSV))

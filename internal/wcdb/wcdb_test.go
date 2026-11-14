@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/klauspost/compress/zstd"
@@ -249,5 +250,14 @@ func TestOpenIgnoresUnrelatedFiles(t *testing.T) {
 	defer store.Close()
 	if len(store.shards) != 3 { // message_0, message_1, message_2 (fts excluded)
 		t.Errorf("shards = %d, want 3", len(store.shards))
+	}
+}
+
+func TestSafeTextAndTruncate(t *testing.T) {
+	if got := SafeText("a\x1b[31mred\x07\nb\u009b"); strings.ContainsAny(got, "\x1b\x07\n\u009b") {
+		t.Errorf("control chars survived: %q", got)
+	}
+	if got := Truncate("你好世界你好", 4); got != "你好世界..." {
+		t.Errorf("Truncate = %q", got)
 	}
 }

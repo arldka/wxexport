@@ -1,18 +1,52 @@
 # wxexport
 
+> **⚠️ Proof of concept / work in progress. Use at your own risk.**
+> This is an experimental personal project, not a finished or supported product. It is provided
+> "as is", without warranty of any kind. It may have bugs, produce incomplete or incorrect
+> exports, break with any WeChat update, or (see the known issue below) cause WeChat to exit.
+> Back up your data first. You are solely responsible for how you use it.
+
+> **🔒 Use only on your own data.**
+> wxexport is meant for exporting **your own** WeChat account's history, from **your own**
+> machine, with **your own** logged-in session. Do not use it on anyone else's account, device or
+> messages, or anywhere you lack explicit permission. Doing so may be illegal (unauthorized
+> access, privacy and data-protection laws) and may violate WeChat's terms of service. Your
+> exports contain private conversations, including other people's messages: keep them secure and
+> do not publish or share them.
+
 Exports 1:1 WeChat message and call history (flatpak WeChat 4.1.x on Linux) to JSON, CSV, and
 SQLite, for your own analytics. See `docs/SPEC.md` for the full specification and `docs/FORMAT.md`
 for findings from calibrating against a real account.
 
 ## Status
 
-Phases 1–5 of the plan are implemented and tested, including end-to-end against a real WeChat
-4.1.13.26 account: key capture, database decryption, contact listing, message decoding, and
-export to all three formats. The TUI (Phase 6) is not built yet.
+Early, experimental, and tested against a single setup (WeChat 4.1.13.26, flatpak, x86-64 Linux).
+Implemented: key capture, database decryption, contact listing, message decoding, export to all
+three formats, and a basic TUI. Expect rough edges, and expect it to stop working on other WeChat
+versions.
 
 **Known issue** (docs/SPEC.md §B.1): `wxexport key capture` has been observed to make the real
 WeChat process exit a few seconds after a successful capture. The captured key is still valid;
 you may need to relaunch WeChat yourself afterward. `key capture` detects this and warns you.
+
+## What `key capture` does, and why it is sensitive
+
+To read your databases, `key capture` relaunches WeChat as a child process and uses `ptrace` to
+read the database passphrase once, at login. That is a debugger-style technique and is only
+appropriate for **your own account on your own machine**. The passphrase is stored in
+`~/.config/wxexport/keys.json` (mode 0600). Anyone who obtains that file and your database files
+can read your chats, so never commit, upload or share it (it is in `.gitignore`).
+
+## Privacy and safety notes
+
+- Decrypted copies of your databases are written to a private temporary directory
+  (`$XDG_RUNTIME_DIR`) while the tool runs, and removed on exit. If the tool is killed, remove
+  leftover `wxexport-*` directories yourself.
+- Exports (JSON/CSV/SQLite) are written with owner-only permissions (0600) and contain plaintext
+  messages. Store them accordingly.
+- CSV cells that begin with `=`, `+`, `-` or `@` are prefixed with `'` so spreadsheets do not
+  execute message content as formulas.
+- Do not paste real chat content, keys or database files into public issues or pull requests.
 
 ## Usage
 
@@ -56,6 +90,13 @@ SELECT substr(date, 1, 7) AS month, count(*) FROM messages WHERE kind = 'image' 
 -- busiest hour of day
 SELECT hour, count(*) FROM messages GROUP BY hour ORDER BY count(*) DESC LIMIT 5;
 ```
+
+## Disclaimer
+
+wxexport is an independent project and is not affiliated with, endorsed by, or supported by
+Tencent or WeChat. "WeChat" is a trademark of its owner. The authors accept no liability for data
+loss, account actions, or any other consequence of using this software; see the proof-of-concept
+notice at the top. Use it only on your own data.
 
 ## Testing
 

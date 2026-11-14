@@ -31,7 +31,7 @@ func (m Model) updateConversation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 
 func (m Model) viewConversation() string {
 	var b strings.Builder
-	name := m.activeContact.DisplayName()
+	name := wcdb.SafeText(m.activeContact.DisplayName())
 	fmt.Fprintf(&b, "%s  %s\n", titleStyle.Render(name), subtleStyle.Render(summaryLine(m.messages)))
 	if m.convErr != nil {
 		b.WriteString(errorStyle.Render("error: "+m.convErr.Error()) + "\n")
@@ -73,9 +73,9 @@ func renderConversation(contact wcdb.ContactSummary, msgs []wcdb.Message) string
 		case wcdb.DirSent:
 			who, style = "me", sentStyle
 		case wcdb.DirReceived:
-			who, style = contact.DisplayName(), receivedStyle
+			who, style = wcdb.SafeText(contact.DisplayName()), receivedStyle
 		}
-		b.WriteString(style.Render(fmt.Sprintf("[%s] %-12s %s", ts, who, badge(m))) + "\n")
+		b.WriteString(style.Render(fmt.Sprintf("[%s] %-12s %s", ts, who, wcdb.SafeText(badge(m)))) + "\n")
 	}
 	if len(msgs) == 0 {
 		b.WriteString(subtleStyle.Render("(no messages)"))

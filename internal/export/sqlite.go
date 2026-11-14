@@ -45,6 +45,13 @@ func WriteSQLite(dst string, force bool, meta Meta, rows []Row) error {
 	}
 	tmp := dst + ".tmp"
 	os.Remove(tmp)
+	// Pre-create with 0600 so the database is never group/world-readable, even briefly
+	// (SQLite would otherwise create it 0644 subject to umask).
+	if f, err := os.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600); err != nil {
+		return err
+	} else {
+		f.Close()
+	}
 	if err := buildSQLite(tmp, meta, rows); err != nil {
 		os.Remove(tmp)
 		return err

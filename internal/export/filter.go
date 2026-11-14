@@ -42,7 +42,7 @@ func DayRange(from, to string, loc *time.Location) (*time.Time, *time.Time, erro
 		if err != nil {
 			return nil, nil, err
 		}
-		v = v.Add(24*time.Hour - time.Second)
+		v = v.AddDate(0, 0, 1).Add(-time.Second) // calendar day, correct across DST changes
 		t = &v
 	}
 	return f, t, nil

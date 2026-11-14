@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	_ "modernc.org/sqlite"
 )
@@ -153,6 +155,7 @@ func (s *Store) Contacts(showAll bool) ([]ContactSummary, error) {
 		}
 	}
 
+	known := usernameSetFrom(all)
 	sessions := map[string]struct {
 		ts      int64
 		summary string
@@ -173,7 +176,8 @@ func (s *Store) Contacts(showAll bool) ([]ContactSummary, error) {
 				ts      int64
 				summary string
 			}{ts, sm}
-			if seenUsernames := usernameSetFrom(all); !seenUsernames[u] {
+			if !known[u] {
+				known[u] = true
 				// A session with no contact row (seen in practice, e.g. some @openim/system
 				// entries): still worth listing if it passes the 1:1 filter.
 				all = append(all, Contact{Username: u})
@@ -248,9 +252,25 @@ func (s *Store) TypeHistogram(contactUsername string) ([]TypeCount, error) {
 	return out, nil
 }
 
-func truncate(s string, n int) string {
-	if len(s) <= n {
+// SafeText makes untrusted text (contact names, message text, summaries) safe to print on a
+// terminal: every control character, including ESC, newlines and C1 controls, becomes a space,
+// so crafted content cannot inject escape sequences. Invalid UTF-8 becomes U+FFFD.
+func SafeText(s string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) || r == '\u2028' || r == '\u2029' {
+			return ' '
+		}
+		return r
+	}, strings.ToValidUTF8(s, "\uFFFD"))
+}
+
+// Truncate shortens s to at most n runes (never splitting a multi-byte character), adding "..."
+// if anything was cut.
+func Truncate(s string, n int) string {
+	if utf8.RuneCountInString(s) <= n {
 		return s
 	}
-	return s[:n] + "..."
+	return string([]rune(s)[:n]) + "..."
 }
+
+func truncate(s string, n int) string { return Truncate(s, n) }

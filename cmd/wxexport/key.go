@@ -124,6 +124,9 @@ func keyCapture(ctx context.Context, g globalFlags, args []string) error {
 		return err
 	}
 
+	fmt.Fprintln(os.Stderr, "NOTICE: key capture attaches a debugger (ptrace) to WeChat. Proof of concept, use at your own risk.\n"+
+		"        Use it ONLY on your own account, on your own machine, with your own login.")
+
 	e, err := g.load()
 	if err != nil {
 		return err

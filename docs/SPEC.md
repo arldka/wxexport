@@ -1,5 +1,7 @@
 # wxexport SPEC
 
+> Proof of concept, use at your own risk. Intended only for exporting your own WeChat account's data from your own machine; see README.md.
+
 
 ## §G Goals
 - G1: Discover the WeChat flatpak install, the account and the DBs without configuration.

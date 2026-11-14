@@ -54,8 +54,10 @@ func Decode(localType int64, content, source string) Decoded {
 
 // --- media (image/voice/video/sticker) ---
 
+// attrRe matches name="value" as a whole attribute name: it must start the string or follow
+// whitespace, so "length" does not match inside "cdnthumblength" and "md5" not inside "rawmd5".
 var attrRe = func(name string) *regexp.Regexp {
-	return regexp.MustCompile(name + `\s*=\s*"([^"]*)"`)
+	return regexp.MustCompile(`(?:^|\s)` + regexp.QuoteMeta(name) + `\s*=\s*"([^"]*)"`)
 }
 
 var (

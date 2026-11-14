@@ -149,7 +149,11 @@ func Resolve(c *Cache, dbs []DB) (map[string]sqlcipher.Key, []Result, error) {
 			default:
 				salt := page1[:sqlcipher.SaltSize]
 				if c != nil {
-					if e, ok := c.DBs[d.Rel]; ok && e.SaltHex == hex.EncodeToString(salt) {
+					// c.DBs is written by other workers under mu, so the read must hold it too.
+					mu.Lock()
+					e, ok := c.DBs[d.Rel]
+					mu.Unlock()
+					if ok && e.SaltHex == hex.EncodeToString(salt) {
 						if enc, err := hex.DecodeString(e.EncKeyHex); err == nil {
 							if k, err := sqlcipher.KeyFromEnc(enc, salt); err == nil && k.VerifyPage(page1, 1) {
 								mu.Lock()
