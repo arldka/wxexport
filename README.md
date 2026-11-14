@@ -1,12 +1,33 @@
-# wxexport
+<div align="center">
 
-> **⚠️ Proof of concept / work in progress. Use at your own risk.**
+# 💬 wxexport
+
+**Export your WeChat 1:1 chat and call history to JSON, CSV and SQLite.**
+
+For your own analytics · flatpak WeChat 4.1.x on Linux · written in Go
+
+![Status](https://img.shields.io/badge/status-proof%20of%20concept-orange)
+![Platform](https://img.shields.io/badge/platform-Linux%20x86--64-informational)
+![Go](https://img.shields.io/badge/Go-1.x-00ADD8?logo=go&logoColor=white)
+![Formats](https://img.shields.io/badge/export-JSON%20%7C%20CSV%20%7C%20SQLite-brightgreen)
+
+**English** · [简体中文](README.zh-CN.md)
+
+[Usage](#usage) · [Status](#status) · [Privacy](#privacy-and-safety-notes) · [Spec](docs/SPEC.md) · [Format notes](docs/FORMAT.md)
+
+</div>
+
+---
+
+> [!WARNING]
+> **Proof of concept / work in progress. Use at your own risk.**
 > This is an experimental personal project, not a finished or supported product. It is provided
 > "as is", without warranty of any kind. It may have bugs, produce incomplete or incorrect
 > exports, break with any WeChat update, or (see the known issue below) cause WeChat to exit.
 > Back up your data first. You are solely responsible for how you use it.
 
-> **🔒 Use only on your own data.**
+> [!CAUTION]
+> **Use only on your own data.**
 > wxexport is meant for exporting **your own** WeChat account's history, from **your own**
 > machine, with **your own** logged-in session. Do not use it on anyone else's account, device or
 > messages, or anywhere you lack explicit permission. Doing so may be illegal (unauthorized
@@ -14,9 +35,8 @@
 > exports contain private conversations, including other people's messages: keep them secure and
 > do not publish or share them.
 
-Exports 1:1 WeChat message and call history (flatpak WeChat 4.1.x on Linux) to JSON, CSV, and
-SQLite, for your own analytics. See `docs/SPEC.md` for the full specification and `docs/FORMAT.md`
-for findings from calibrating against a real account.
+Exports 1:1 WeChat message and call history to JSON, CSV, and SQLite. See `docs/SPEC.md` for the
+full specification and `docs/FORMAT.md` for findings from calibrating against a real account.
 
 ## Status
 
